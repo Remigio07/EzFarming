@@ -1,0 +1,16 @@
+messages:
+  prefix: '&8[&5&lEz&f&lFarming&8]'
+  no-permission: '{pfx} &cNon hai il permesso per eseguire questo comando.'
+  only-players: '{pfx} &cSolo i giocatori possono eseguire questo comando.'
+  wrong-syntax: '{pfx} &cLa sintassi è errata. Utilizzo: &f{0}&c.'
+  reload: '{pfx} &aEzFarming è stato ricaricato. Ci sono voluti &f{0} ms&a.'
+  version: '{pfx} &aIn esecuzione &5&lEz&f&lFarming &fv{0} &adi &9Remigio07&a.'
+  bypass:
+    enabled: '{pfx} &aModalità di bypass abilitata.'
+    disabled: '{pfx} &aModalità di bypass disabilitata.'
+  addsprinkler:
+    added: '{pfx} &aIrrigatore aggiunto con successo.'
+    already-exists: '{pfx} &cEsiste già un''irrigatore in quella posizione.'
+  removesprinkler:
+    removed: '{pfx} &aIrrigatore rimosso con successo.'
+    not-found: '{pfx} &cNessun irrigatore trovato nel raggio di &f{0} &cblocchi.'

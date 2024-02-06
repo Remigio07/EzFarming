@@ -1,0 +1,12 @@
+name: EzFarming
+main: me.remigio07.ezfarming.EzFarming
+version: '${version}'
+api-version: 1.13
+author: Remigio07
+website: https://remigio07.me
+depend: [WorldGuard]
+commands:
+  ezfarming:
+    description: EzFarming's main command
+    usage: '/ezfarming <bypass|reload|version|addsprinkler|removesprinkler>'
+    aliases: [ezfarm]

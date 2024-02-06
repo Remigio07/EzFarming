@@ -1,0 +1,28 @@
+plugins {
+	id 'java'
+}
+
+group 'me.remigio07.ezfarming'
+version '0.0.1'
+
+repositories {
+	mavenLocal()
+	maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+	maven { url 'https://maven.enginehub.org/repo/' }
+}
+
+dependencies {
+	compileOnly 'org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT'
+	compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.0'
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+processResources {
+	filesMatching([ 'plugin.yml' ]) {
+		expand 'version': rootProject.version
+	}
+}
