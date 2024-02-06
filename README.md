@@ -1,15 +1,41 @@
 # 🌾 EzFarming
 This is a small plugin that speeds up crops harvesting and trees cutting inside of configured regions. A custom WorldGuard flag is used to determine if saplings and crops should be regenerated after their growth.
-The plugin is a project for a [private server](https://www.odysseymc.eu/); it will not be uploaded to Bukkit/SpigotMC. Join my [Discord server](https://remigio07.me/discord.gg/CPtysXTfQg) for support.
+
+<details>
+  <summary><strong>Showcase</strong></summary>
+  <br>
+  
+  https://github.com/Remigio07/EzFarming/assets/31587616/c26479bb-90c0-43c6-929f-3d753fe7f549
+  
+  https://github.com/Remigio07/EzFarming/assets/31587616/fd4f89a4-29fc-43b8-b9ff-12b4bd04ce5e
+</details>
+
+The plugin is a project for a [private server](https://www.odysseymc.eu/); it will not be uploaded to Bukkit/SpigotMC.
+If you want to suggest a new feature or improvement, open a PR. Join my [Discord server](https://remigio07.me/discord.gg/CPtysXTfQg) for support.
 
 ## Dependencies
 [WorldGuard](https://dev.bukkit.org/projects/worldguard) on a Java 17 1.20+ Bukkit environment is required to run the plugin. Older versions may work too, but they have not been tested.
 
 ## Setup
-A bunch of messages can be configured in the plugin's config.yml file. 
+A bunch of messages can be configured in the plugin's config.yml file. Italian translations can be found in `src/main/resources/messages-italian.yml`.
+Remember to perform a `/ezfarming reload` every time you edit the messages.
+
+### Configuring regions
+Create a claimed region using WorldGuard and set its `ezfarming` flag to `true` using `/region flag <region> ezfarming true`, then execute `/region flag <region> block-break allow` to allow breaking crops and wood.
+
+> This flag allows players to break every block inside the region, **but the plugin cancels the event** unless they break one of the following blocks:
+> - crops: beetroots, carrots, potatoes, wheat, *nether warts*
+> - logs: oak, birch, acacia, cherry, dark oak, jungle, spruce
+
+Because of this, make sure that your region does not contain any of those blocks unless you want players to be able to break them.
+
+### Sprinklers
+To create sprinklers to regenerate crops, type `/ezfarming addsprinkler`.
+You should have at least one sprinkler for every harvesting area inside the region.
+Note that trees are automatically regenerated when saplings grow.
 
 ## Permissions
-The plugin currently has only one permission node: `ezfarming.admin`. It is used to check if players are allowed to execute the `/ezfarming` command and 
+The plugin currently has only one permission node: `ezfarming.admin`. It is used to check if players are allowed to execute the `/ezfarming` command and to check if they are allowed to break blocks when the `block-break` flag is set to `allow`.
 
 ## Building
 [Gradle](https://gradle.org) is used to speed up the process of building from source.
