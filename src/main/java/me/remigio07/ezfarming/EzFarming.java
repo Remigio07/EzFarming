@@ -298,7 +298,7 @@ public class EzFarming extends JavaPlugin {
 			
 			if (cropTasks.size() != 0) {
 				CropTask firstTask = cropTasks.get(0);
-				Location cropLocation = firstTask.getBlock().getLocation();
+				Location cropLocation = getCenter(firstTask.getBlock());
 				ArmorStand nearest = null;
 				
 				for (ArmorStand sprinkler : sprinklers.values())
