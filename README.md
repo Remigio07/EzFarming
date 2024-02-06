@@ -43,4 +43,4 @@ To build the project, download the repository using [Git](https://git-scm.com/do
 ```bat
 gradlew build
 ```
-You will find the compiled JAR at `EzFarming/build/libs/EzFarming-0.0.1.jar`.
+You will find the compiled JAR at `EzFarming/build/libs/EzFarming-X.x.x.jar`.
