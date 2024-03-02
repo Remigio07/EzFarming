@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -35,17 +37,24 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.type.Leaves;
 import org.bukkit.block.data.type.Sapling;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 
 public class EventsListener implements Listener {
 	
 	private static List<BlockFace> faces = Arrays.asList(BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);
+	private EzFarming plugin;
 	private List<Block> leavesQueue = new ArrayList<>();
 	private List<CropTask> cropTasks = new ArrayList<>();
+	
+	EventsListener(EzFarming plugin) {
+		this.plugin = plugin;
+	}
 	
 	@EventHandler
 	public void onLeavesDecay(LeavesDecayEvent event) {
@@ -60,19 +69,25 @@ public class EventsListener implements Listener {
 			return;
 		Material type = EzFarming.TREES.get(event.getSpecies());
 		
-		if (type == null)
+		if (type == null || plugin.getSapling(event.getLocation().getBlock()) != null)
 			return;
-		Block block = event.getLocation().getBlock();
+		String id = UUID.randomUUID().toString();
+		Location location = EzFarming.getCenter(event.getLocation().getBlock());
+		SavedSapling sapling = new SavedSapling(id, location, type);
+		FileConfiguration config = plugin.getConfig();
 		
-		Bukkit.getScheduler().runTask(EzFarming.getInstance(), () -> {
-			block.setType(type);
-			((Sapling) block.getBlockData()).setStage(1);
-		});
+		config.set("saplings." + id + ".world", location.getWorld().getName());
+		config.set("saplings." + id + ".x", location.getBlockX());
+		config.set("saplings." + id + ".y", location.getBlockY());
+		config.set("saplings." + id + ".z", location.getBlockZ());
+		config.set("saplings." + id + ".type", type.name());
+		plugin.getSaplings().put(sapling.getID(), sapling);
+		plugin.saveConfig();
 	}
 	
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (event.isCancelled() || EzFarming.getInstance().getBypassPlayers().contains(event.getPlayer().getUniqueId()) || !WorldGuardHook.getInstance().isInsideEzFarmingRegion(event.getBlock().getLocation()))
+		if (event.isCancelled() || plugin.getBypassPlayers().contains(event.getPlayer().getUniqueId()) || !WorldGuardHook.getInstance().isInsideEzFarmingRegion(event.getBlock().getLocation()))
 			return;
 		Block block = event.getBlock();
 		Material type = block.getType();
@@ -90,10 +105,35 @@ public class EventsListener implements Listener {
 				event.setCancelled(true);
 				block.getWorld().spawnParticle(Particle.SMOKE_NORMAL, EzFarming.getCenter(block), 10, 0.25D, 0.25D, 0.25D, 0.1D);
 			}
+		} else if (EzFarming.TREES.values().contains(type)) {
+			SavedSapling sapling = plugin.getSapling(block);
+			
+			if (sapling != null) {
+				plugin.getConfig().set("saplings." + sapling.getID(), null);
+				plugin.getSaplings().remove(sapling.getID());
+				plugin.saveConfig();
+				event.getPlayer().sendMessage(EzFarming.getMessage("messages.sapling-removed"));
+			}
+		} else if (EzFarming.BREAKABLE_MATERIALS.contains(type)) {
+			SavedSapling sapling = plugin.getSapling(block);
+			
+			if (sapling != null) {
+				Bukkit.getScheduler().runTaskLater(plugin, () -> {
+					block.setType(sapling.getType());
+					((Sapling) block.getBlockData()).setStage(1);
+					block.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, EzFarming.getCenter(block), 10, 0.25D, 0.25D, 0.25D);
+				}, 20L);
+			}
 		} else performLeavesDecay(block);
 	}
 	
-	public void performLeavesDecay(Block block) {
+	@EventHandler
+	public void onWorldUnload(WorldUnloadEvent event) {
+		plugin.reloadSprinklers();
+		plugin.reloadSaplings();
+	}
+	
+	private void performLeavesDecay(Block block) {
 		Material type = block.getType();
 		
 		if (Tag.LEAVES.isTagged(type) || Tag.LOGS.isTagged(type)) {
@@ -104,7 +144,7 @@ public class EventsListener implements Listener {
 				
 				if (!Tag.LEAVES.isTagged(relative.getType()) || ((Leaves) relative.getBlockData()).isPersistent() || leavesQueue.contains(relative))
 					continue;
-				Bukkit.getScheduler().runTaskLater(EzFarming.getInstance(), () -> {
+				Bukkit.getScheduler().runTaskLater(plugin, () -> {
 					if (leavesQueue.remove(relative) && Tag.LEAVES.isTagged(relative.getType())) {
 						Leaves leaves = (Leaves) relative.getBlockData();
 						
@@ -128,12 +168,12 @@ public class EventsListener implements Listener {
 		}
 	}
 	
-	public List<CropTask> getCropTasks() {
-		return cropTasks;
-	}
-	
 	public List<Block> getLeavesQueue() {
 		return leavesQueue;
+	}
+	
+	public List<CropTask> getCropTasks() {
+		return cropTasks;
 	}
 	
 }

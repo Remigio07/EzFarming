@@ -93,8 +93,9 @@ public class EzFarming extends JavaPlugin {
 	private List<UUID> bypassPlayers = new ArrayList<>();
 	private Map<String, ArmorStand> sprinklers = new HashMap<>();
 	private Map<String, Integer> sprinklersTasks = new HashMap<>();
+	private Map<String, SavedSapling> saplings = new HashMap<>();
 	private ItemStack sprinklerSkull = new ItemStack(Material.PLAYER_HEAD);
-	private EventsListener eventsListener = new EventsListener();
+	private EventsListener eventsListener = new EventsListener(this);
 	
 	static {
 		try (Scanner scanner = new Scanner(EzFarming.class.getResourceAsStream("/plugin.yml"), "UTF-8")) {
@@ -132,10 +133,12 @@ public class EzFarming extends JavaPlugin {
 		config.addDefault("messages.addsprinkler.already-exists", "{pfx} &cA sprinkler at that location already exists.");
 		config.addDefault("messages.removesprinkler.removed", "{pfx} &aSprinkler removed successfully.");
 		config.addDefault("messages.removesprinkler.not-found", "{pfx} &cNo sprinklers found in a radius of &f{0} &cblocks.");
+		config.addDefault("messages.sapling-removed", "{pfx} &aSapling removed successfully.");
 		config.addDefault("sprinklers.0.world", Bukkit.getWorlds().get(0).getName());
 		config.addDefault("sprinklers.0.x", 0);
 		config.addDefault("sprinklers.0.y", 0);
 		config.addDefault("sprinklers.0.z", 0);
+		config.addDefault("saplings", Map.of());
 		config.options().copyDefaults(true);
 		saveConfig();
 		reloadConfig();
@@ -143,10 +146,11 @@ public class EzFarming extends JavaPlugin {
 		try {
 			profile.getTextures().setSkin(new URL("http://textures.minecraft.net/texture/d6b13d69d1929dcf8edf99f3901415217c6a567d3a6ead12f75a4de3ed835e85"));
 		} catch (MalformedURLException e) {
-			e.printStackTrace(); // never called
+			// never called
 		} meta.setOwnerProfile(profile);
 		sprinklerSkull.setItemMeta(meta);
 		loadSprinklers();
+		reloadSaplings();
 		Bukkit.getPluginManager().registerEvents(eventsListener, this);
 		getCommand("ezfarming").setExecutor(this);
 	}
@@ -154,6 +158,7 @@ public class EzFarming extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		unloadSprinklers();
+		saplings.clear();
 		HandlerList.unregisterAll(this);
 		scheduler.cancelTasks(this);
 	}
@@ -182,6 +187,7 @@ public class EzFarming extends JavaPlugin {
 					
 					reloadConfig();
 					reloadSprinklers();
+					reloadSaplings();
 					sender.sendMessage(getMessage("messages.reload", System.currentTimeMillis() - ms));
 					return true;
 				case "version":
@@ -251,6 +257,21 @@ public class EzFarming extends JavaPlugin {
 	
 	public List<UUID> getBypassPlayers() {
 		return bypassPlayers;
+	}
+	
+	public Map<String, ArmorStand> getSprinklers() {
+		return sprinklers;
+	}
+	
+	public Map<String, SavedSapling> getSaplings() {
+		return saplings;
+	}
+	
+	public SavedSapling getSapling(Block block) {
+		for (SavedSapling sapling : saplings.values())
+			if (sapling.getLocation().equals(getCenter(block)))
+				return sapling;
+		return null;
 	}
 	
 	// throws IAE if there's already a sprinkler at that block location or with the same ID
@@ -383,6 +404,34 @@ public class EzFarming extends JavaPlugin {
 		sprinklers.clear();
 		sprinklersTasks.values().forEach(task -> scheduler.cancelTask(task));
 		sprinklersTasks.clear();
+	}
+	
+	public void reloadSaplings() {
+		saplings.clear();
+		
+		FileConfiguration config = getConfig();
+		
+		for (String id : config.getConfigurationSection("saplings").getKeys(false)) {
+			String worldName = config.getString("saplings." + id + ".world", "string_not_found");
+			World world = Bukkit.getWorld(worldName);
+			
+			if (world == null)
+				log("Invalid world (\"{0}\") specified at \"saplings.{1}.world\". A world with that name does not exist.", 2, worldName, id);
+			else try {
+				saplings.put(id, new SavedSapling(
+						id,
+						getCenter(new Location(
+								world,
+								config.getInt("saplings." + id + ".x"),
+								config.getInt("saplings." + id + ".y"),
+								config.getInt("saplings." + id + ".z")
+						).getBlock()),
+						Material.valueOf(config.getString("saplings." + id + ".type"))
+						));
+			} catch (IllegalArgumentException e) {
+				log(e.getMessage(), 2);
+			}
+		}
 	}
 	
 	public static String getMessage(String path, Object... args) {

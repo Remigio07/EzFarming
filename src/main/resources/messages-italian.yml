@@ -14,3 +14,4 @@ messages:
   removesprinkler:
     removed: '{pfx} &aIrrigatore rimosso con successo.'
     not-found: '{pfx} &cNessun irrigatore trovato nel raggio di &f{0} &cblocchi.'
+  sapling-removed: '{pfx} &aArboscello rimosso con successo.'
