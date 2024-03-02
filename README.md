@@ -7,7 +7,7 @@ This is a small plugin that speeds up crops harvesting and trees cutting inside 
   
   https://github.com/Remigio07/EzFarming/assets/31587616/c26479bb-90c0-43c6-929f-3d753fe7f549
   
-  https://github.com/Remigio07/EzFarming/assets/31587616/fd4f89a4-29fc-43b8-b9ff-12b4bd04ce5e
+  https://github.com/Remigio07/EzFarming/assets/31587616/0595e18d-e7b9-4e21-a86d-ec9d6d085440
 </details>
 
 The plugin is a project for a [private server](https://www.odysseymc.eu/); it will not be uploaded to Bukkit/SpigotMC.
@@ -32,7 +32,10 @@ Because of this, make sure that your region does not contain any of those blocks
 ### Sprinklers
 To create sprinklers to regenerate crops, type `/ezfarming addsprinkler`.
 You should have at least one sprinkler for every harvesting area inside the region.
-Note that trees are automatically regenerated when saplings grow.
+
+### Trees
+Saplings' locations are automatically saved to config when they grow inside of a region. The sapling will be replanted after the first log is removed.
+To manually remove a sapling from the config, simply destroy it.
 
 ## Permissions
 The plugin currently has only one permission node: `ezfarming.admin`. It is used to check if players are allowed to execute the `/ezfarming` command and to check if they are allowed to break blocks when the `block-break` flag is set to `allow`.
