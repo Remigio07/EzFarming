@@ -1,7 +1,7 @@
 # 🌾 EzFarming
-[![Version](https://img.shields.io/github/v/release/Remigio07/EzFarming?style=plastic&label=version)](/Remigio07/EzFarming/releases)
+[![Version](https://img.shields.io/github/v/release/Remigio07/EzFarming?style=plastic&label=version)](https://github.com/Remigio07/EzFarming/releases)
 [![License](https://img.shields.io/github/license/Remigio07/EzFarming?style=plastic)]([https://www.gnu.org/licenses/agpl-3.0.en.html](https://www.apache.org/licenses/LICENSE-2.0.html))
-[![Lines of code](https://tokei.rs/b1/github/Remigio07/EzFarming?category=code&color=magenta)](/Remigio07/EzFarming)
+[![Lines of code](https://tokei.rs/b1/github/Remigio07/EzFarming?category=code&color=magenta)](https://github.com/Remigio07/EzFarming)
 
 EzFarming is a small plugin that speeds up crops harvesting and trees cutting inside of configured regions. A custom WorldGuard flag is used to determine if saplings and crops should be regenerated after their growth.
 
